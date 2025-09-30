@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "target/timesheet-app-1.0.0.jar",
+      "use": "@vercel/java"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/target/timesheet-app-1.0.0.jar"
+    }
+  ],
+  "env": {
+    "SPRING_PROFILES_ACTIVE": "prod",
+    "JWT_SECRET": "@jwt-secret",
+    "DATABASE_URL": "@database-url"
+  },
+  "functions": {
+    "target/timesheet-app-1.0.0.jar": {
+      "runtime": "java11"
+    }
+  }
+}
+

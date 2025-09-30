@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q Timesheet Management System</title>
+    <link rel="stylesheet" href="css/styles.css?v=1.2">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-clock"></i>
+                <span>Q Timesheet</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item employee-only">
+                    <a href="#timesheets" class="nav-link" onclick="showSection('timesheets')">
+                        <i class="fas fa-calendar-alt"></i>Timesheets
+                    </a>
+                </li>
+                <li class="nav-item manager-only">
+                    <a href="#approvals" class="nav-link" onclick="showSection('approvals')">
+                        <i class="fas fa-check-circle"></i> Approvals
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#projects" class="nav-link" onclick="showSection('projects')">
+                        <i class="fas fa-project-diagram"></i> Projects
+                    </a>
+                </li>
+                <li class="nav-item manager-only">
+                    <a href="#reports" class="nav-link" onclick="showSection('reports')">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a href="#employees" class="nav-link" onclick="showSection('employees')">
+                        <i class="fas fa-users"></i> Employees
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+            <div class="user-info">
+                <span id="userWelcome">Welcome, User</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <div id="loginSection" class="section active">
+        <div class="login-container">
+            <div class="login-form">
+                <h2><i class="fas "></i> Q Timesheet Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+
+                <div class="demo-accounts">
+                    <h4>Demo Accounts:</h4>
+                    <div class="demo-account" onclick="fillLogin('admin@timesheet.com', 'admin123')">
+                        <strong>Admin:</strong> admin@timesheet.com / admin123
+                    </div>
+                    <div class="demo-account" onclick="fillLogin('manager@timesheet.com', 'manager123')">
+                        <strong>Manager:</strong> manager@timesheet.com / manager123
+                    </div>
+                    <div class="demo-account" onclick="fillLogin('employee1@timesheet.com', 'emp123')">
+                        <strong>Employee:</strong> employee1@timesheet.com / emp123
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section">
+        <div class="container">
+            <h1>Dashboard</h1>
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-clock text-primary"></i>
+                        <h3>This Week's Hours</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-number" id="weekHours">0</div>
+                        <div class="stat-label">Hours Logged</div>
+                    </div>
+                </div>
+
+                <div class="card employee-only">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-check text-success"></i>
+                        <h3>Pending Submissions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-number" id="pendingSubmissions">0</div>
+                        <div class="stat-label">Timesheets</div>
+                    </div>
+                </div>
+
+                <div class="card manager-only">
+                    <div class="card-header">
+                        <i class="fas fa-user-check text-warning"></i>
+                        <h3>Pending Approvals</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-number" id="pendingApprovals">0</div>
+                        <div class="stat-label">To Review</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-project-diagram text-info"></i>
+                        <h3>Active Projects</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-number" id="activeProjects">0</div>
+                        <div class="stat-label">Projects</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <div id="recentActivity" class="activity-list">
+                    <!-- Activity items will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timesheets Section -->
+    <div id="timesheets" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h1>My Timesheets</h1>
+                <button class="btn btn-primary" onclick="showCreateTimesheetModal()">
+                    <i class="fas fa-plus"></i> New Timesheet
+                </button>
+            </div>
+
+            <div class="timesheet-filters">
+                <select id="timesheetStatusFilter" onchange="filterTimesheets()">
+                    <option value="">All Status</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="SUBMITTED">Submitted</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+            </div>
+
+            <div class="timesheet-list" id="timesheetList">
+                <!-- Timesheets will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Section -->
+    <div id="projects" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h1>Projects</h1>
+                <button class="btn btn-primary manager-only" onclick="showCreateProjectModal()">
+                    <i class="fas fa-plus"></i> New Project
+                </button>
+            </div>
+
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Projects will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Approvals Section -->
+    <div id="approvals" class="section">
+        <div class="container">
+            <h1>Pending Approvals</h1>
+            <div class="approvals-list" id="approvalsList">
+                <!-- Pending approvals will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Section -->
+    <div id="reports" class="section">
+        <div class="container">
+            <h1>Reports</h1>
+            <div class="reports-controls">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reportType">Report Type:</label>
+                        <select id="reportType" onchange="updateReportForm()">
+                            <option value="employee">Employee Report</option>
+                            <option value="project">Project Report</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="employeeSelectGroup">
+                        <label for="reportEmployee">Employee:</label>
+                        <select id="reportEmployee">
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="projectSelectGroup" style="display: none;">
+                        <label for="reportProject">Project:</label>
+                        <select id="reportProject">
+                            <option value="">Select Project</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="generateReport()">
+                            <i class="fas fa-chart-bar"></i> Generate Report
+                        </button>
+                        <button class="btn btn-success" onclick="exportReport()">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reportResults" class="report-results">
+                <!-- Report results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Section -->
+    <div id="employees" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h1>Employee Management</h1>
+                <button class="btn btn-primary" onclick="showCreateEmployeeModal()">
+                    <i class="fas fa-user-plus"></i> Add Employee
+                </button>
+            </div>
+
+            <div class="employees-table" id="employeesTable">
+                <!-- Employees table will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Create Timesheet Modal -->
+    <div id="createTimesheetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Timesheet</h3>
+                <span class="close" onclick="closeModal('createTimesheetModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="createTimesheetForm">
+                    <div class="form-group">
+                        <label for="weekStartDate">Week Start Date:</label>
+                        <input type="date" id="weekStartDate" name="weekStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weekEndDate">Week End Date:</label>
+                        <input type="date" id="weekEndDate" name="weekEndDate" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">Create Timesheet</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('createTimesheetModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timesheet Entry Modal -->
+    <div id="timesheetEntryModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>Timesheet Entries</h3>
+                <span class="close" onclick="closeModal('timesheetEntryModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="timesheet-info" id="timesheetInfo">
+                    <!-- Timesheet info will be displayed here -->
+                </div>
+
+                <div class="add-entry-form">
+                    <h4>Add Entry</h4>
+                    <form id="addEntryForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="entryProject">Project:</label>
+                                <select id="entryProject" name="projectId" required>
+                                    <option value="">Select Project</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="entryDate">Date:</label>
+                                <input type="date" id="entryDate" name="workDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="entryHours">Hours:</label>
+                                <input type="number" id="entryHours" name="hoursWorked" min="0" max="24" step="0.5" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="entryDescription">Task Description:</label>
+                            <textarea id="entryDescription" name="taskDescription" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Entry</button>
+                    </form>
+                </div>
+
+                <div class="entries-list" id="entriesList">
+                    <!-- Timesheet entries will be displayed here -->
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-success" id="submitTimesheetBtn" onclick="submitTimesheet()">Submit for Approval</button>
+                    <button class="btn btn-secondary" onclick="closeModal('timesheetEntryModal')">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Employee Modal -->
+    <div id="createEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Employee</h3>
+                <span class="close" onclick="closeModal('createEmployeeModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="createEmployeeForm">
+                    <div class="form-group">
+                        <label for="empEmail">Email:</label>
+                        <input type="email" id="empEmail" name="email" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="empFirstName">First Name:</label>
+                            <input type="text" id="empFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empLastName">Last Name:</label>
+                            <input type="text" id="empLastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="empPassword">Password:</label>
+                            <input type="password" id="empPassword" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empRole">Role:</label>
+                            <select id="empRole" name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="EMPLOYEE">Employee</option>
+                                <option value="MANAGER">Manager</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="empManager">Manager:</label>
+                        <select id="empManager" name="managerId">
+                            <option value="">Select Manager (Optional)</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">Create Employee</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('createEmployeeModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Employee</h3>
+                <span class="close" onclick="closeModal('editEmployeeModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editEmployeeForm">
+                    <input type="hidden" id="editEmployeeId" name="employeeId">
+                    <div class="form-group">
+                        <label for="editEmail">Email:</label>
+                        <input type="email" id="editEmail" name="email" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editFirstName">First Name:</label>
+                            <input type="text" id="editFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editLastName">Last Name:</label>
+                            <input type="text" id="editLastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editRole">Role:</label>
+                            <select id="editRole" name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="EMPLOYEE">Employee</option>
+                                <option value="MANAGER">Manager</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEmpManager">Manager:</label>
+                            <select id="editEmpManager" name="managerId">
+                                <option value="">Select Manager (Optional)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">Update Employee</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editEmployeeModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div id="createProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Project</h3>
+                <span class="close" onclick="closeModal('createProjectModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="createProjectForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projCode">Project Code:</label>
+                            <input type="text" id="projCode" name="projectCode" required placeholder="e.g. PROJ001">
+                        </div>
+                        <div class="form-group">
+                            <label for="projName">Project Name:</label>
+                            <input type="text" id="projName" name="projectName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="projDescription">Description:</label>
+                        <textarea id="projDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projStartDate">Start Date:</label>
+                            <input type="date" id="projStartDate" name="startDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="projEndDate">End Date:</label>
+                            <input type="date" id="projEndDate" name="endDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="projManager">Project Manager:</label>
+                        <select id="projManager" name="projectManagerId">
+                            <option value="">Select Manager (Optional)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="projActive" name="isActive" checked>
+                            Active Project
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">Create Project</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('createProjectModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/app.js?v=1.0"></script>
+</body>
+</html>

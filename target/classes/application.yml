@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: timesheet-app
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+# Server Configuration
+server:
+  port: ${PORT:8082}
+  servlet:
+    context-path: ${CONTEXT_PATH:/timesheet}
+
+# Custom Application Properties
+app:
+  jwt:
+    secret: ${JWT_SECRET:timesheetSecretKey2024}
+    expiration: 86400000 # 24 hours in milliseconds
+
+---
+# Development Profile (H2 Database)
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:h2:mem:timesheetdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    user:
+      name: admin
+      password: admin123
+
+# Logging Configuration for Development
+logging:
+  level:
+    com.timesheet: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+
+---
+# Production Profile (PostgreSQL Database)
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  h2:
+    console:
+      enabled: false
+
+# Logging Configuration for Production
+logging:
+  level:
+    com.timesheet: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
