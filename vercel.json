@@ -17,6 +17,6 @@
     "JWT_SECRET": "@jwt-secret",
     "DATABASE_URL": "@database-url"
   },
-  }
 }
+
 
