@@ -17,10 +17,6 @@
     "JWT_SECRET": "@jwt-secret",
     "DATABASE_URL": "@database-url"
   },
-  "functions": {
-    "target/timesheet-app-1.0.0.jar": {
-      "runtime": "java11"
-    }
   }
 }
 
